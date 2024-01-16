@@ -11,7 +11,7 @@ auto escaping is enabled by default and can be disabled using the `raw` filter
 * we can use `include()` to include a twig fragment
 * `parent()` method can be used to render the content from the parent block :
 
-```php
+```twig
 {% block sidebar %}
     <h3>Table Of Contents</h3>
     ...
@@ -95,6 +95,24 @@ It gives access to :
     - field_errors()
     - field_choices()
 
+The form_* functions render all html elements froma form field. To have full control, it's recommended to use the field_* methods that render only the value :
+```twig
+<input
+    name="{{ field_name(form.username) }}"
+    value="{{ field_value(form.username) }}"
+    placeholder="{{ field_label(form.username) }}"
+    class="form-control"
+>
+
+<select name="{{ field_name(form.country) }}" class="form-control">
+    <option value="">{{ field_label(form.country) }}</option>
+
+    {% for label, value in field_choices(form.country) %}
+        <option value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+</select>
+```
+
 ### Twig filters for Symfony
 
 [Details on each filter](https://symfony.com/doc/current/reference/twig_reference.html#filters)
@@ -107,7 +125,7 @@ It gives access to :
 * **abbr_class** : `{{ class|abbr_class }}`
 * **abbr_method** : `{{ method|abbr_method }}`
 * **format_args** : `{{ args|format_args }}`
-* **format_args_as_text** : `{{ args|format_args_as_text }}` (same as above but without generating <em> element)
+* **format_args_as_text** : `{{ args|format_args_as_text }}` (same as above but without generating `<em>` element)
 * **file_excerpt** : `{{ file|file_excerpt(line, srcContext = 3) }}`
 * **format_file** : `{{ file|format_file(line, text = null) }}`
 * **format_file_from_text** : `{{ text|format_file_from_text }}`
@@ -126,7 +144,7 @@ It gives access to :
 ## String concatenation and interpolation
 
 1. Concatenation with the `~` operator :
-```php
+```twig
 {% set foo = 'hello' %}
 {% set bar = 'world' %}
 {{ foo ~ ' ' ~ bar ~ '!' }}
@@ -134,13 +152,13 @@ It gives access to :
 ```
 
 2. Concatenation with the `format` filter : 
-```php
+```twig
 {{ "%s %s!" | format(foo, bar) }}
 // output: hello world!
 ```
 
 3. String interpolation
-```php
+```twig
 {{ "#{foo} #{bar}!" }}
 // output: hello world!
 
@@ -151,7 +169,7 @@ It gives access to :
 ## Debugging variables
 
 There are two ways using `dump`, as afunction or as a tag :
-```php
+```twig
 {# templates/article/recent_list.html.twig #}
 {# the contents of this variable are sent to the Web Debug Toolbar
    instead of dumping them inside the page contents #}
