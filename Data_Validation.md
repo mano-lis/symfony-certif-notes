@@ -87,7 +87,7 @@ class User implements UserInterface
 }
 ```
 Here we have three validation groups here :
-- `User` : Based on the name of the class, it checks for all the constraints that are not inside any other validation groups. If there was an embedded object in a property (i.e. $address from an Address class) on which there was the Valid constraints, then this group will **NOT** validate this embedded object.
+- `User` : Based on the name of the class, it checks for all the constraints that are not inside any other validation groups. If there was an embedded object in a property (i.e. $address from an Address class) on which there was the Valid constraints, then this group will **NOT** validate this embedded object's properties that have not the `User` group on them.
 - `Default` : Same as User. Must not be used in a GroupSequence because it will cause an infinite loop
 - `registration` : A custom validation group
 
