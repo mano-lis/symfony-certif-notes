@@ -139,12 +139,12 @@ These functions :
 * `env(string $name)` : Returns the value of a variable using Environment Variable Processors
 * `service(string $alias)` : Returns a routing condition service
 
-The service has to add the #[AsRoutingConditionService] attribute or routing.condition_service tag
+The service has to add the `#[AsRoutingConditionService]` attribute or routing.condition_service tag
 
 ## HTTP methods matching
 
-With the `methods` options in Route attribute
-HTML form only support GET and POST methods, but symfony form adds automatically a hidden field (e.g. <input type="hidden" name="_method" value="PUT">) if `framework.http_method_override` on true.
+* With the `methods` options in Route attribute you can restrict verbs each route responds to.
+* HTML form only support GET and POST methods, but symfony form adds automatically a hidden field (e.g. <input type="hidden" name="_method" value="PUT">) if `framework.http_method_override` on true.
 
 ## Debugging
 
