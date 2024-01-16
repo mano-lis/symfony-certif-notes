@@ -39,18 +39,55 @@ The methods from AbstractController are :
 Further details in [dedicated file](Http_General.md#symfony-and-http-fundamentals).
 * Request object has a request property which is an InputBag object (useful to get the body of your POST request)
 * Response has a headers property which is a ResponseInputBag (useful to set headers)
-* It's possible to automatically map query parameters or request payload to the controlle's action arguments using attributes (#[MapQueryParameter], #[MapQueryString] or #[MapRequestPayload] with several options). 
+* It's possible to automatically map query parameters or request payload to the controlle's action arguments using attributes (#[MapQueryParameter], #[MapQueryString] or #[MapRequestPayload] with several options).
+Let's pretend a user sends you a request with the following query string:<br> `https://example.com/dashboard?firstName=John&lastName=Smith&age=27`.
+Here is your DTO class:
 ```php
+namespace App\Model;
+
+use Symfony\Component\Validator\Constraints as Assert;
+
+class UserDTO
+{
+    public function __construct(
+        #[Assert\NotBlank]
+        public string $firstName,
+
+        #[Assert\NotBlank]
+        public string $lastName,
+
+        #[Assert\GreaterThan(18)]
+        public int $age,
+    ) {
+    }
+}
+```
+You can map the whole query string
+```php
+use App\Model\UserDto;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 
 // ...
 
 public function dashboard(
-    #[MapRequestPayload(
-        acceptFormat: 'json',
-        validationGroups: ['strict', 'read'],
-        validationFailedStatusCode: Response::HTTP_NOT_FOUND
-    )] UserDTO $userDto
+    #[MapQueryString] UserDTO $userDto
+): Response
+{
+    // ...
+}
+```
+or map each query parameter with optional filter regex:
+```php
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+
+// ...
+
+public function dashboard(
+    #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => '/^\w++$/'])] string $firstName,
+    #[MapQueryParameter] string $lastName,
+    #[MapQueryParameter(filter: \FILTER_VALIDATE_INT)] int $age,
 ): Response
 {
     // ...
@@ -67,6 +104,9 @@ $cookie = new Cookie('cookie-name', 'cookie-value', '...', partitioned: true);
 // or:
 $cookie = Cookie::fromString('cookie-name=cookie-value; ...; Partitioned;');
 
+// or:
+$cookie = ...
+$cookie->withPartitioned();
 ```
 
 ## Sessions
@@ -76,8 +116,18 @@ Sessions are available through RequestStack and Request object with getSession()
 
 ### Session Attributes
 
-* Session attributes are key-value pairs managed with the AttributeBag class.
+* Session attributes are key-value pairs managed with the [AttributeBag](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/HttpFoundation/Session/Attribute/AttributeBag.php) class.
 * Sessions are automatically started whenever you read, write or even check for the existence of data in the session.
+```php
+// stores an attribute for reuse during a later user request
+$session->set('attribute-name', 'attribute-value');
+
+// gets an attribute by name
+$foo = $session->get('foo');
+
+// the second argument is the value returned when the attribute doesn't exist
+$filters = $session->get('filters', []);
+```
 
 ### Flash Messages
 
@@ -137,6 +187,58 @@ if (time() - $session->getMetadataBag()->getLastUsed() > $maxIdleTime) {
 ```
 See more details about Session (like how to store in a database) [here](https://symfony.com/doc/current/session.html#configuration)
 
+## HTTP redirects
+
+The redirect() method does not check its destination in any way. If you redirect to a URL provided by end-users, your application may be open to the unvalidated redirects security vulnerability.
+
+```php
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+
+// ...
+public function index(): RedirectResponse
+{
+    // redirects to the "homepage" route
+    return $this->redirectToRoute('homepage');
+
+    // redirectToRoute is a shortcut for:
+    // return new RedirectResponse($this->generateUrl('homepage'));
+
+    // does a permanent HTTP 301 redirect
+    return $this->redirectToRoute('homepage', [], 301);
+    // if you prefer, you can use PHP constants instead of hardcoded numbers
+    return $this->redirectToRoute('homepage', [], Response::HTTP_MOVED_PERMANENTLY);
+
+    // redirect to a route with parameters
+    return $this->redirectToRoute('app_lucky_number', ['max' => 10]);
+
+    // redirects to a route and maintains the original query string parameters
+    return $this->redirectToRoute('blog_show', $request->query->all());
+
+    // redirects to the current route (e.g. for Post/Redirect/Get pattern):
+    return $this->redirectToRoute($request->attributes->get('_route'));
+
+    // redirects externally
+    return $this->redirect('http://symfony.com/doc');
+}
+```
+
+## Internal redirects
+
+```php
+public function index($name): Response
+{
+    $response = $this->forward('App\Controller\OtherController::fancy', [
+        'name'  => $name,
+        'color' => 'green',
+    ]);
+
+    // ... further modify the response or return it directly
+
+    return $response;
+}
+```
+
 ## File Upload
 
 * Create a form type with a FileType field (unmapped)
@@ -155,7 +257,7 @@ See more details about Session (like how to store in a database) [here](https://
 Dynamically get the value inside an url is possible via the controller thanks to the [ArgumentResolver](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/HttpKernel/Controller/ArgumentResolver.php).
 Most known built-in value resolvers :
 * BackedEnumValueResolver : if the value in the route is not a valid backing value of the enum, route will lead to a 404
-* DateTimeValueResolver : By default any input that can be parsed as a date string by PHP is accepted (DateTimeInterface object is generated with the Clock component, giving full controlover date and time value)
+* DateTimeValueResolver : By default any input that can be parsed as a date string by PHP is accepted (DateTimeInterface object is generated with the Clock component, giving full control over date and time value)
 * RequestValueResolver
 * SessionValueResolver
 * UidValueResolver
