@@ -89,6 +89,7 @@ With the condition `if ($form->isSubmitted() && $form->isValid())` there are thr
 
 * Redirect a user after form submission is the best practice to prevent him from re-post datas
 * `submit()` method offers more control on the submitted data (i.e. making a PATCH request, by passing false as second argument. Otherwise the other fields not submitted will be set to null). [Details](https://symfony.com/doc/current/form/direct_submit.html)
+* When submitting a form via a "PATCH" request, you may want to update only a few submitted fields. To achieve this, you may pass an optional second boolean argument to submit(). Passing false will remove any missing fields within the form object. Otherwise, the missing fields will be set to null.
 
 ### Form Validation
 
@@ -205,7 +206,7 @@ public function buildView(FormView $view, FormInterface $form, array $options): 
 {{ form_widget(form, { 'attr': {'class': 'foo'} }) }}
 ```
 To do so, you have to iterate with a for loop on form.children
-* You can access a bunch of useful variables with `form.vars` ([full list](https://symfony.com/doc/current/form/form_customization.html#form-variables-reference))
+* You can access a bunch of useful variables with `form.name.vars` where `name` is the name of the field ([full list](https://symfony.com/doc/current/form/form_customization.html#form-variables-reference))
 
 ## form_theme
 
@@ -343,6 +344,8 @@ As token are stored in a session, you can't cache a page that contains a form wh
 * Your extension must extend [AbstractTypeExtension](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Form/AbstractTypeExtension.php) or implements [FormTypeExtensionInterface](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Form/FormTypeExtensionInterface.php)
 * The only method you must implement is getExtendedTypes(), which returns an array of the field types you want to modify.
 * a form type extension applying to FormType would apply to most of the form types (notable exceptions are the ButtonType form types)
+* A form type extension applying to a "parent" form type will apply to all the other form types that are extensions (those whose getExtendedTypes() return the "parent" form type) of this "parent" form type:<br>
+E.g. several form types inherit from the TextType form type (such as EmailType, SearchType, UrlType, etc.). A form type extension applying to TextType (i.e. whose getExtendedType() method returns TextType::class) would apply to all of these form types.
 
 
 
