@@ -7,10 +7,10 @@
 To have a look at all the available options run `config:dump-reference`
 
 * Symfony typical project begins with three environments: `dev`, `prod` and `test` and the config files are loaded in this order :
-    1. The files in config/packages/*.<extension>;
-    2. the files in config/packages/<environment-name>/*.<extension>;
-    3. config/services.<extension>;
-    4. config/services_<environment-name>.<extension>.
+    1. The files in config/packages/*.`<extension>`;
+    2. the files in config/packages/`<environment-name>`/*.`<extension>`;
+    3. config/services.`<extension>`;
+    4. config/services_`<environment-name>`.`<extension>`.
 * It's also possible to define options for different env with `when@<environment>` key.
 * A command can be run in different env by prefixing it like this :
 ```console
@@ -54,7 +54,7 @@ var_dump($expressionLanguage->evaluate('1 + 2')); // displays 3
 
 var_dump($expressionLanguage->compile('1 + 2')); // displays (1 + 2)
 ```
-evaluation: the expression is evaluated without being compiled to PHP;
+evaluation: the expression is evaluated without being compiled to PHP;<br>
 compile: the expression is compiled to PHP, so it can be cached and evaluated.
 * Here are some variables and methods provided by Symfony to create expressions :
     - `user`
@@ -124,9 +124,9 @@ composer dump-autoload --no-dev --classmap-authoritative
 
 ### Cache component
 
-There are two different approaches provided by this component
-**PSR-6 Caching**: A generic cache system, which involves cache "pools" and cache "items".
-**Cache Contracts**: A simpler yet more powerful way to cache values based on recomputation callbacks.
+There are two different approaches provided by this component:<br>
+  - **PSR-6 Caching**: A generic cache system, which involves cache "pools" and cache "items".
+  - **Cache Contracts**: A simpler yet more powerful way to cache values based on recomputation callbacks.
 
 #### Cache contracts
 
@@ -235,7 +235,7 @@ EOF;
 
 $person = $serializer->deserialize($data, Person::class, 'xml');
 ```
-deserialization example disabling ALLOW_EXTRA_ATTRIBUTES option so as to throw an exception if data contains properties which are not attributes of the targetted class.
+deserialization following example disabling ALLOW_EXTRA_ATTRIBUTES option so as to throw an exception if data contains properties which are not attributes of the targetted class.
 ```php
 use App\Model\Person;
 
@@ -262,6 +262,25 @@ $person = $serializer->deserialize($data, Person::class, 'xml', [
 ## Messenger component
 
 see [this cheat sheet](/sf44-messenger-cheat-sheet.pdf)
+
+**Since Symfony 7, it's not mandatory to implement MessageHandlerInterface in the handler class. Symfony recognize the handler thanks to type-hinting the message class in the __invoke() method of the handler**<br>
+E.g. assuming SmsNotification is the message class:
+```php
+// src/MessageHandler/SmsNotificationHandler.php
+namespace App\MessageHandler;
+
+use App\Message\SmsNotification;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler]
+class SmsNotificationHandler
+{
+    public function __invoke(SmsNotification $message)
+    {
+        // ... do some work - like sending an SMS message!
+    }
+}
+```
 
 ## Mime and Mailer components
 
@@ -390,9 +409,9 @@ $finder->files()->filter($filter);
 
 ### FileSystem Component
 
-This component has two main classes : [FileSystem](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Filesystem/Filesystem.php) and [Path](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Filesystem/Path.php)
+This component has two main classes : [Filesystem](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Filesystem/Filesystem.php) and [Path](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Filesystem/Path.php)
 
-#### File
+#### Filesystem
 
 * provides several methods to manage files (mkdir(), touch(), chmod(), chown(), copy(), mirror() etc) [full list](https://symfony.com/doc/current/components/filesystem.html#filesystem-utilities)
 * `dumpFile()` saves a given content into a file (and creates file/directory if it does not exist)
@@ -580,7 +599,7 @@ $now = $clock->now();
 // And sleep for any number of seconds
 $clock->sleep(2.5);
 ```
-* now() method returns a [DatePoint] class (small wrapper on top of PHP's DateTimeImmutable, usable everywhere a DateTimeImmutable or DateTimeInterface is expected)
+* now() method returns a DatePoint class (small wrapper on top of PHP's DateTimeImmutable, usable everywhere a DateTimeImmutable or DateTimeInterface is expected)
 * The component provides two traits :
     - [ClockAwareTrait](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Clock/ClockAwareTrait.php): has to be used in our services so as to test them using MockClock.
     - [ClockSensitiveTrait](https://github.com/symfony/symfony/blob/7.0/src/Symfony/Component/Clock/Test/ClockSensitiveTrait.php): helpful to write time-sensitive test (provides methods to freeze time and restore global clock after each test).
