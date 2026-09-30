@@ -107,7 +107,7 @@ class Kernel extends BaseKernel implements CompilerPassInterface
 
     // ...
 
-    protected function process(ContainerBuilder $container): void
+    public function process(ContainerBuilder $container): void
     {
         if ('test' === $this->environment) {
             // prevents the security token to be cleared

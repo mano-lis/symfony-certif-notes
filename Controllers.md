@@ -31,14 +31,12 @@ The methods from AbstractController are :
 * isCsrfTokenValid()
 * addLink()
 * sendEarlyHints()
-* doRender()
-* doRenderView()
 
 ## Request and Response
 
-Further details in [dedicated file](Http_General.md#symfony-and-http-fundamentals).
+Further details in [dedicated file](HTTP_General.md#symfony-and-http-fundamentals).
 * Request object has a request property which is an InputBag object (useful to get the body of your POST request)
-* Response has a headers property which is a ResponseInputBag (useful to set headers)
+* Response has a headers property which is a ResponseHeaderBag (useful to set headers)
 * It's possible to automatically map query parameters or request payload to the controlle's action arguments using attributes (#[MapQueryParameter], #[MapQueryString] or #[MapRequestPayload] with several options).
 Let's pretend a user sends you a request with the following query string:<br> `https://example.com/dashboard?firstName=John&lastName=Smith&age=27`.
 Here is your DTO class:
@@ -131,7 +129,7 @@ $filters = $session->get('filters', []);
 
 ### Flash Messages
 
-* Flash messages are messages stored in the user's session which vanished when session is closed.
+* Flash messages are messages stored in the user's session until they are retrieved: `get()` and `all()` (used by `app.flashes` in Twig) return and remove them, while `peek()` and `peekAll()` read them without removing them.
 ```php
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -250,7 +248,6 @@ public function index($name): Response
 ## Built-in Controllers
 
 * ErrorController
-* SecurityController
 
 ## Argument Value Resolvers
 

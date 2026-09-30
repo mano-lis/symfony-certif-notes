@@ -110,11 +110,11 @@ Rather than using access_control option, you can deny access from your code.
 * Access can be checked everywhere in our code by injecting Security object.
 * There are several built-in attributes :
     - `IS_AUTHENTICATED` isn't a role, but it kind of acts like one, and every user that has logged in will have this. 
-    - `IS_AUTHENTICATED_FULLY`: This is similar to IS_AUTHENTICATED_REMEMBERED, but stronger. Users who are logged in only because of a "remember me cookie" will have
-    - `IS_AUTHENTICATED_REMEMBERED` but will not have IS_AUTHENTICATED_FULLY.
+    - `IS_AUTHENTICATED_REMEMBERED`: All logged in users have this, even if they are logged in because of a "remember me cookie".
+    - `IS_AUTHENTICATED_FULLY`: This is similar to IS_AUTHENTICATED_REMEMBERED, but stronger. Users who are logged in only because of a "remember me cookie" will have IS_AUTHENTICATED_REMEMBERED but will not have IS_AUTHENTICATED_FULLY.
     - `IS_REMEMBERED`: Only users authenticated using the remember me functionality, (i.e. a remember-me cookie).
     - `IS_IMPERSONATOR`: When the current user is impersonating another user in this session, this attribute will match.
-* On every request (unle)
+* On every request (unless the firewall is `stateless`), the user is unserialized from the session and refreshed through the user provider's `refreshUser()`; it is serialized back to the session at the end of the request.
 ### Roles
 
 * Roles are stored in db and every user have at least `ROLE_USER`
@@ -227,7 +227,7 @@ A "firewall" is your authentication system: the firewall defines which parts of 
 * Only one firewall is active on each request.
 * All real URLs are handled by the main firewall (no `pattern` key means it matches all URLs)
 * A firewall can have many modes of authentication, and visiting a url under a firwewall does not necessarily mean that authentication is required.
-* `lazy` anonymous mode prevent a session from being started if no authorization is needed.
+* `lazy: true` prevents a session from being started if no authorization is needed.
 * You can get config with :
 ```php
 $request = $this->requestStack->getCurrentRequest();
@@ -295,7 +295,7 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 ```
 * If your user class is a Doctrine entity and you hash user passwords, the Doctrine repository class related to the user class must implement the PasswordUpgraderInterface.
-* When a better new hash algorithm is available, users' password could be rehashed thanks to the `migrate_form` option :
+* When a better new hash algorithm is available, users' password could be rehashed thanks to the `migrate_from` option :
 ```yaml
 # config/packages/security.yaml
 security:

@@ -69,7 +69,7 @@ Here are the lists of the events, in order of appearance :
 * **kernel.terminate**
   after response has been sent
 * **kernel.exception**
-  as soon as an error occurs during the handling of an http request
+  not part of the sequence above: dispatched as soon as an error occurs at any point during the handling of an http request
 
 ## Exception handling
 
