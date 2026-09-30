@@ -69,7 +69,7 @@ Then it can be used inside the controller using the `createForm()` method which 
 
 Maker bundle can generate form classes using `make:form` or `make:registration-form` commands.
 
-Even if it's not necessary, it's better to specify the name of the class that holds data from the form (necessary for embedded forms) inside the `configurationOptions()` method :
+Even if it's not necessary, it's better to specify the name of the class that holds data from the form (necessary for embedded forms) inside the `configureOptions()` method :
 ```php
 public function configureOptions(OptionsResolver $resolver): void
     {

@@ -113,6 +113,8 @@ by implementing GroupSequenceProviderInterface (and so defining `getGroupSequenc
 namespace App\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\GroupSequence;
+use Symfony\Component\Validator\GroupSequenceProviderInterface;
 
 #[Assert\GroupSequenceProvider]
 class User implements GroupSequenceProviderInterface
@@ -143,7 +145,7 @@ class User implements GroupSequenceProviderInterface
 }
 ```
 
-* You can separate the logic by creating a class dedicated to it (which will implements GroupUserProviderInterface and define getGroupSequence) and referencing this class inthe targeted entity with the provider option :
+* You can separate the logic by creating a class dedicated to it (which will implements GroupSequenceProviderInterface and define getGroupSequence) and referencing this class inthe targeted entity with the provider option :
 ```php
 // src/Entity/User.php
 namespace App\Entity;

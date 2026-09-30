@@ -129,7 +129,7 @@ A full list can be accessed with the command `debug:container` (Router, Console,
 ## Service Decoration
 
 * When a service is decorated (i.e. with #[AsDecorator(decorates: OldService::class)]) a reference of the old one is kept as `.inner`
-* Using the `#[AsDecorator]` attribute, you can access the decorated service by injecting it but in some cases you will need to inject it explicitly with the `#[AutowiredDecorator]` attrubute on top of the argument.
+* Using the `#[AsDecorator]` attribute, you can access the decorated service by injecting it but in some cases you will need to inject it explicitly with the `#[AutowireDecorated]` attribute on top of the argument.
 * You can set a priority option in the #[AsDecorator] attribute (higher applied first). Alternatively, you can create a stack of oredered services, each one decorating the next :
 ```yaml
 # config/services.yaml
